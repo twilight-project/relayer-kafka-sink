@@ -126,7 +126,10 @@ pub fn receive_event_from_kafka_queue(
     thread::spawn(move || {
         // get the last offset from kafka
         let last_offset = get_offset_from_kafka(topic.clone(), group.clone());
-        println!("last_offset: {:#?}", last_offset);
+        println!(
+            "last_offset for topic: {} and group: {} is {:#?}",
+            topic, group, last_offset
+        );
 
         // create an offset tracker
         let offset_tracker = Arc::new(OffsetManager::new(last_offset - 1));
@@ -331,9 +334,7 @@ pub fn psql_relayer_state_queue(
 
 /// Gets the last committed offset from Kafka for a topic/group
 pub fn get_offset_from_kafka(topic: String, group: String) -> i64 {
-    let broker = vec![std::env::var("BROKER")
-        .expect("missing environment variable BROKER")
-        .to_owned()];
+    let broker = vec![KAFKA_BROKER.clone()];
     let mut con = Consumer::from_hosts(broker)
         // .with_topic(topic)
         .with_group(group)
