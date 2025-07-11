@@ -146,7 +146,7 @@ fn create_relayer_state_queue_table() -> Result<(), r2d2_postgres::postgres::Err
         "CREATE TABLE IF NOT EXISTS public.relayer_state_queue (
             \"offset\" bigint NOT NULL,
             key VARCHAR(1024) NOT NULL,
-            payload json NOT NULL,
+            payload json NOT NULL
           );"
     );
     let mut client = POSTGRESQL_POOL_CONNECTION.get().unwrap();

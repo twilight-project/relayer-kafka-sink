@@ -26,9 +26,9 @@ fn main() {
 
     // Initialize PostgreSQL tables
     init_psql();
-
+    thread::sleep(time::Duration::from_millis(100));
     // Spawn thread for processing RPC commands
-    thread::Builder::new()
+    let upload_rpc_command_to_psql_thread = thread::Builder::new()
         .name(String::from("upload_rpc_command_to_psql"))
         .spawn(move || {
             crate::query::upload_rpc_command_to_psql();
@@ -36,7 +36,7 @@ fn main() {
         .unwrap();
 
     // Spawn thread for processing event logs
-    thread::Builder::new()
+    let upload_event_log_to_psql_thread = thread::Builder::new()
         .name(String::from("upload_event_log_to_psql"))
         .spawn(move || {
             crate::query::upload_event_log_to_psql();
@@ -44,7 +44,7 @@ fn main() {
         .unwrap();
 
     // Spawn thread for processing failed RPC commands
-    thread::Builder::new()
+    let upload_rpc_failed_command_to_psql_thread = thread::Builder::new()
         .name(String::from("upload_rpc_failed_command_to_psql"))
         .spawn(move || {
             crate::query::upload_rpc_failed_command_to_psql();
@@ -52,7 +52,7 @@ fn main() {
         .unwrap();
 
     // Spawn thread for processing relayer state queue
-    thread::Builder::new()
+    let upload_relayer_state_queue_to_psql_thread = thread::Builder::new()
         .name(String::from("upload_relayer_state_queue_to_psql"))
         .spawn(move || {
             crate::query::upload_relayer_state_queue_to_psql();
@@ -60,9 +60,8 @@ fn main() {
         .unwrap();
 
     println!("relayer-kafka-sink running successfully...");
-
-    // Keep main thread alive
-    loop {
-        thread::sleep(time::Duration::from_millis(100000000));
-    }
+    upload_rpc_command_to_psql_thread.join().unwrap();
+    upload_event_log_to_psql_thread.join().unwrap();
+    upload_rpc_failed_command_to_psql_thread.join().unwrap();
+    upload_relayer_state_queue_to_psql_thread.join().unwrap();
 }
