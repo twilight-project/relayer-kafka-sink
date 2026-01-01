@@ -46,8 +46,15 @@ lazy_static! {
             .unwrap_or(String::from("RELAYER_KAFKA_SINK_GROUP_CORE_EVENT_LOG"));
 
     /// Kafka broker address
-    pub static ref KAFKA_BROKER: String =
-        std::env::var("KAFKA_BROKER").unwrap_or(String::from("localhost:9092"));
+        pub static ref BROKERS: Vec<String> = {
+        dotenv::dotenv().ok();
+
+        std::env::var("KAFKA_BROKER")
+            .unwrap_or_else(|_| "localhost:9092".to_string())
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .collect()
+    };
 
     /// Kafka topic name for relayer state queue
     pub static ref RELAYER_STATE_QUEUE: String =

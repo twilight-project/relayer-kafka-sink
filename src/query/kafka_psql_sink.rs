@@ -137,7 +137,7 @@ pub fn receive_event_from_kafka_queue(
         let worker_tracker = offset_tracker.clone();
         let commit_tracker = offset_tracker.clone();
 
-        let broker = vec![KAFKA_BROKER.clone()];
+        let broker = BROKERS.clone();
         let mut con = Consumer::from_hosts(broker.clone())
             // .with_topic(topic)
             .with_group(group.clone())
@@ -334,7 +334,7 @@ pub fn psql_relayer_state_queue(
 
 /// Gets the last committed offset from Kafka for a topic/group
 pub fn get_offset_from_kafka(topic: String, group: String) -> i64 {
-    let broker = vec![KAFKA_BROKER.clone()];
+    let broker = BROKERS.clone();
     let mut con = Consumer::from_hosts(broker)
         // .with_topic(topic)
         .with_group(group)
